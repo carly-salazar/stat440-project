@@ -1,0 +1,45 @@
+---
+title: "STAT 440/540 Final Project — Group XX"
+author: "Name1 · Name2 · Name3"
+format:
+  revealjs:
+    slide-number: true
+    toc: false
+    incremental: true
+    code-fold: false
+    theme: simple
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Question and Motivation
+- One slide: problem statement, why it matters
+
+## Data in One Slide
+- n, p, key variables, data source, any quirks
+
+## Approach
+- Modeling strategy (bulleted pipeline)
+
+## Results
+- Key table/figure (single most persuasive visual)
+
+```{r}
+#| label:fig-key
+#| fig-cap: "Key result visualization."
+# ggplot(dat, aes(x1, y)) + geom_point() + geom_smooth(method = "lm")
+```
+
+## Diagnostics (Brief)
+- 1–2 bullets or a small multi-panel figure
+
+## Takeaways
+- What you found, practical implication, limitation
+
+## Team Contributions
+- Who did what (one line each)
+
+## Q&A
+- Backup slides: extra figs/tables

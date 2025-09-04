@@ -1,0 +1,76 @@
+---
+title: "STAT 440/540 Project Proposal"
+author: "Group XX: Name1, Name2, Name3"
+date: "2025-09-04"
+format:
+  pdf:
+    toc: true
+    number-sections: false
+    geometry: margin=1in
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: visual
+---
+
+# Project Proposal
+
+## Group and Communication Plan
+
+-   Members and emails
+-   Collaboration tools (e.g., GitHub, Google Drive) and cadence
+-   Roles (analysis, writing, QA)
+
+## Research Question
+
+-   Primary question (predictive or explanatory)
+-   Target outcome (Y) (continuous)
+-   Why this matters (context, stakeholders)
+
+## Dataset Summary
+
+-   Source and link
+-   Observations (n) and variables (p)
+-   Candidate predictors (X) (quantitative/categorical)
+-   Licensing/usage constraints
+
+## Data Dictionary (Concise)
+
+-   Variable \| Type \| Description \| Units \| Expected role (Y / X)
+-   …
+
+## Suitability for Regression
+
+-   Linearity/plausibility, expected signal, anticipated interactions
+-   Potential data issues (missingness, outliers, measurement error)
+
+## Risks and Mitigations
+
+-   Data access, cleaning complexity, time constraints → proposed mitigations
+
+## Ethical Use and Reproducibility
+
+-   Privacy, bias, fairness considerations
+-   Plan for reproducible workflows (versioning, seeds, session info)
+
+## Planned Analytic Path
+
+-   EDA → simple regressions → candidate multiple models → diagnostics → refinement
+
+## Package Setup
+
+```{r}
+#| label: pkg-setup
+#| include: true
+if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
+pacman::p_load(tidyverse, janitor, broom, knitr, kableExtra, ggplot2)
+set.seed(440540)
+```
+
+## Reproducibility Snapshot
+
+```{r}
+#| label: session-info
+sessionInfo()
+```
