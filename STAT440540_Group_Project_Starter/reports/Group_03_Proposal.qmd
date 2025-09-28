@@ -1,0 +1,202 @@
+---
+title: "STAT 440 Project Proposal"
+author: "Group 03: Marilla Cabrigas Blatnick, Kaylie Doyle, Carly Salazar"
+date: "2025-09-04"
+format:
+  pdf:
+    toc: true
+    number-sections: false
+    geometry: margin=1in
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: visual
+---
+
+# Project Proposal
+
+## Group and Communication Plan
+
+### Members
+
+Marilla Cabrigas Blatnick \| [muhriluh\@unm.edu](mailto:muhriluh@unm.edu)
+
+Kaylie Doyle \| [kdoyle54\@unm.edu](mailto:kdoyle54@unm.edu)
+
+Carly Salazar \| [csalazar8\@unm.edu](mailto:csalazar8@unm.edu)
+
+### Collaboration Tools and Cadence
+
+Version Control \| <https://github.com/carly-salazar/stat440-project>
+
+Initial Documentation \| Google Drive
+
+Google Drive will be used for all initial brainstorming and planning. Once the analysis begins, R code and other important files will be stored in a Git repository to ensure everyone has access to the most current versions.
+
+### Roles
+
+All team members will be responsible for contributing to each task. The roles are:
+
+-   **Analysis:** Responsible for data collection, cleaning, and interpretation.
+
+-   **Writing:** Responsible for documenting analysis, methods, and conclusions.
+
+-   **QA:** Responsible for reviewing and verifying all work for accuracy and completeness.
+
+## Research Question
+
+### Primary Question
+
+How well can stress levels, coping mechanisms, and demographic factors predict GPA among college students? (Predictive) Which features have the most positive effect on GPA? (Explanatory)
+
+### Target Outcome
+
+The target outcome of this research proposal is to better understand the factors that lead to an academically successful student. The GPA of an individual student will be the response variable that will measure the academic success of a student.
+
+### Importance
+
+This data can be used to better understand which traits are associated with students that have high academic success. This could be used to identify ways to improve their student body's academic success by implementing programs. For example, if a common factor of academic success are family issues, they could provide accessible programs to cope with family issues.
+
+## Dataset Summary
+
+### [**Student Mental Stress and Coping Mechanisms Dataset**](https://www.kaggle.com/datasets/salahuddinahmedshuvo/student-mental-stress-and-coping-mechanisms)
+
+<https://www.kaggle.com/datasets/salahuddinahmedshuvo/student-mental-stress-and-coping-mechanisms>
+
+### Observations and Variables
+
+This data set has a total of 760 observations (n=760) and 12 variables (p=12).
+
+### Candidate Predictors
+
+**Quantitative**
+
+-   Age
+
+-   Sleep Hours
+
+-   Work/Study Hours
+
+-   Academic Pressure
+
+-   Study Load
+
+-   Financial Stress
+
+-   Family Issues
+
+-   Stress Level
+
+**Categorical**
+
+-   Gender
+
+-   Degree
+
+-   Study Year
+
+-   Coping Mechanism (exercise, hobbies, socializing, etc.)
+
+### Licensing
+
+This data set has a [Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/), which means we need to credit the original source when we present our work.
+
+## Data Dictionary (Concise)
+
+-   
+
+    -   
+
+        | Variable | Type | Description | Units | Expected role (Y / X) |
+        |---------------|---------------|---------------|---------------|---------------|
+        | **GPA** | Quantitative (numeric, continuous) | Student grade point average, main focus of the study | Grade point average | Y |
+        | **Age** | Quantitative | Student’s age | Years | X |
+        | **Sleep Hours** | Quantitative | Average hours of sleep per night | Hours/night | X |
+        | **Work/Study Hours** | Quantitative | Hours per day spent working or studying | Hours/day | X |
+        | **Academic Pressure** | Quantitative (self-reported scale) | Perceived academic pressure | 1–10 scale | X |
+        | **Study Load** | Quantitative (self-reported scale) | Perceived workload intensity | 1–10 scale | X |
+        | **Financial Stress** | Quantitative (self-reported scale) | Quantitative (self-reported scale) | 1–10 scale | X |
+        | **Family Issues** | Quantitative (self-reported scale) | Stress caused by family problems | 1–10 scale | X |
+        | **Stress Level** | Quantitative (self-reported scale) | Overall stress rating | 1–10 scale | X |
+        | **Gender** | Categorical | Student’s gender | Categories (Male, Female, Other) | X |
+        | **Degree** | Categorical | Academic degree enrolled (e.g., undergrad, grad) | Categories | X |
+        | **Study Year** | Categorical | Current year in academic program | Categories (Year 1, Year 2, etc.) | X |
+        | **Coping Mechanism** | Categorical | Primary strategy for handling stress | Categories (exercise, socializing, hobbies, none, other) | X |
+
+## Suitability for Regression
+
+### Linearity/plausibility, expected signal, anticipated interactions
+
+-   **Stress Level, Academic Pressure, Study Load, Financial Stress, Family Issues** -\> expected **negative** association with GPA (higher stress → lower GPA).
+
+-   **Sleep Hours** -\> expected **positive** association with GPA (more sleep → better GPA).
+
+-   **Study Load / Work Hours** -\> ambiguous: higher study hours might raise GPA up to a point, but excessive load or long work hours may reduce performance. Expect **nonlinear** effects (diminishing returns).
+
+-   **Coping Mechanism** -\> protective: some coping styles (exercise, structured study) may **buffer** stress effects on GPA.
+
+-   **Gender / Degree / Study Year** -\> this could shift mean GPA (group differences), useful as covariates.
+
+**Nonlinearity to expect**
+
+-   **Sleep and study hours** often show non-linear relationships with performance (e.g., too little and possibly too much sleep both matter).
+
+-   **Stress** -\> GPA may be nonlinear (moderate pressure can improve performance; excessive stress harms it).
+
+**Anticipated interactions**
+
+-   **Stress Level/Coping Mechanism**: coping reduces the harmful effect of stress on GPA.
+
+-   **Study Load/Sleep Hours**: heavy study + little sleep -\> larger negative effect.
+
+-   **Financial Stress/Family Issues**: combined social stressors may amplify negative impact.
+
+-   **Academic Pressure/Study Load**: high pressure and high load could interact.
+
+### Potential Data Issues
+
+**GPA scale ambiguity**: check whether GPA is on a 0–4 scale, 0–10, percent, or mixed (students might report differently). 
+
+**Self-report error**: GPA and all stress items may be self-reported (rounding, misreporting, grade inflation). And sensitive items (financial/family stress) and GPA may be missing non-randomly.
+
+**Outliers / impossible values**: e.g., GPA \> max scale, Sleep Hours = 0 or \>24, 
+
+**Collinearity**: academic pressure, study load, and stress may be strongly correlated.
+
+<!-- -->
+
+## Risks and Mitigations
+
+Since the data is synthetically generated from Kaggle, it's already downloaded and appears to be very clean. There are no missing values or out-of-bounds data points. While there may be time constraints, we can mitigate them with weekly progress checks.
+
+## Ethical Use and Reproducibility
+
+### Privacy, Bias, Fairness Considerations
+
+The Kaggle dataset was synthetically generated using Mockaroo, an online tool designed to create random datasets based on user-defined parameters, meaning there is no personal identifiable information that will be used in this analysis. However, it could be possible that there is some bias introduced when synthetically generating the data.
+
+### Reproducible Workflows
+
+We will use GitHub for version control, this will allow us to track changes and make our data and analysis publicly accessible. To ensure our results are fully reproducible, we'll set the random seed to `440540` for the entire project. We'll also provide the session information to document the specific software versions and packages used.
+
+### Planned Analytic Path
+
+-   EDA → simple regressions → candidate multiple models → diagnostics → refinement
+
+## Package Setup
+
+```{r}
+#| label: pkg-setup
+#| include: true
+if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
+pacman::p_load(tidyverse, janitor, broom, knitr, kableExtra, ggplot2)
+set.seed(440540)
+```
+
+## Reproducibility Snapshot
+
+```{r}
+#| label: session-info
+sessionInfo()
+```
