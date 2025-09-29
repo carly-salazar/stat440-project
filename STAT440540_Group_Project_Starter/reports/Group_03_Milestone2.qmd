@@ -1,6 +1,6 @@
 ---
 title: "STAT 440/540 Milestone 2: EDA & Initial Models"
-author: "Group 03"
+author: "Group 03: Marilla Cabrigas Blatnick, Kaylie Doyle, Carly Salazar"
 date: "2025-09-25"
 format:
   pdf:
@@ -59,7 +59,7 @@ dat <- raw |>
 
 ```{r}
 #| label: tbl-summary
-##| tbl-cap: "Summary statistics for numeric variables."
+#| tbl-cap: "Summary statistics for numeric variables."
 
 summary_data <- dat |>
   dplyr::select(where(is.numeric)) |>
@@ -101,8 +101,8 @@ summary_data |>
 ## Exploratory Visualizations
 
 ```{r}
-##| label:fig-pairs
-##| fig-cap: "Pairs plot for numeric variables."
+#| label: fig-pairs
+#| fig-cap: "Pairs plot for numeric variables."
 
 # ---- From old data set
 # gpa_dat <- dat |>
@@ -117,8 +117,8 @@ GGally::ggpairs(dplyr::select(dat, where(is.numeric)))
 ```
 
 ```{r}
-##| label:fig-y-vs-x
-##| fig-cap: "Outcome vs. selected predictors with loess smooth."
+#| label: fig-y-vs-x
+#| fig-cap: "Outcome vs. selected predictors with loess smooth."
 dat |>
   dplyr::select(where(is.numeric)) |>
   tidyr::pivot_longer(cols = -c(gpa), names_to = "var", values_to = "val") |>
@@ -139,8 +139,8 @@ dat |>
 ## Initial Simple Regressions
 
 ```{r}
-## | label: simple-models
-cand_x <- c("study_hours_per_day","extracurricular_hours_per_day","sleep_hours_per_day")
+#| label: simple-models
+cand_x <- c("study_hours_per_day","extracurricular_hours_per_day","sleep_hours_per_day", "social_hours_per_day", "physical_activity_hours_per_day")
 fits <- lapply(cand_x, \(v) lm(reformulate(v, response = "gpa"), data = dat))
 models <- tibble::tibble(
   predictor = cand_x,
@@ -172,6 +172,6 @@ dplyr::bind_rows(purrr::map2(models$predictor, models$glance, \(v,g) dplyr::muta
 ## Reproducibility Snapshot
 
 ```{r}
-##| label: session-info
+#| label: session-info
 sessionInfo()
 ```
