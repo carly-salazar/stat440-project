@@ -1,12 +1,18 @@
 ---
-title: "STAT 440/540 Milestone 2: EDA & Initial Models"
+title: "STAT 440 Milestone 2: EDA & Initial Models"
 author: "Group 03: Marilla Cabrigas Blatnick, Kaylie Doyle, Carly Salazar"
-date: "2025-09-25"
+date: "2025-10-02"
 format:
   pdf:
     toc: true
     number-sections: true
     geometry: margin=1in
+  # latex: 
+  #   pandoc-args: [
+  #     "-H", "preamble.tex", --listings
+  #   ]
+  #   highlight-style: "tango"
+  #   keep-tex: true
 execute:
   echo: true
   warning: false
@@ -16,11 +22,12 @@ editor: visual
 
 # Overview
 
--   Briefly restate question, dataset, and key variables.
+<!-- -   Briefly restate question, dataset, and key variables. -->
 
 The purpose of the this project is to explore the relationship that mental health and other life style factors that can affect a college student's GPA. 
-This dataset gathers data on GPA, mental health factors, student habits, and other life style factors. 
-The key variables in this data set is the repsonse variable *GPA* and other important variables such as sleep and [something else].
+This dataset collects data on GPA, stress level, student habits, and other life style factors. The main key variables in this data set is the repsonse variable *GPA* and the explanatory variable *study hours per day*. 
+
+*Note: The dataset in this initial data analysis was changed due to the previous data being a synthetically generated Kaggle dataset, thus providing no real relationships in the data. This new data has many of the same variable as before and can be used to answer our original research question. The new dataset can be found [here](https://www.kaggle.com/datasets/steve1215rogg/student-lifestyle-dataset).*
 
 ## Package Setup
 
@@ -37,22 +44,17 @@ set.seed(440540)
 #| label: data-import
 raw <- readr::read_csv("../data/raw/student_lifestyle_dataset.csv") |> janitor::clean_names()
 
-# raw <- readr::read_csv("../data/raw/example_stub.csv") |> janitor::clean_names()
-
-summary(raw) 
-
-# dat <- raw 
-
 dat <- raw |>
   dplyr::select(-student_id)
 
-
-
-# Code originally given
-  # mutate(
-  #   x3 = factor(x3)
-  # ) |>
-  # tidyr::drop_na(y)     
+dat <- dat |>
+  dplyr::mutate(
+    stress_level = dplyr::case_when(
+      stress_level == "Low" ~ 1,
+      stress_level == "Moderate" ~ 2,
+      stress_level == "High" ~ 3
+    )
+  )   
 ```
 
 ## Descriptive Statistics
@@ -88,14 +90,6 @@ summary_data |>
     numeric.p100
   ) |>
   knitr::kable()
-
-
-# THE original CODE GIVEN
-# dat |>
-#   dplyr::select(where(is.numeric)) |>
-#   skimr::skim() |>
-#   knitr::kable()
-
 ```
 
 ## Exploratory Visualizations
@@ -103,17 +97,21 @@ summary_data |>
 ```{r}
 #| label: fig-pairs
 #| fig-cap: "Pairs plot for numeric variables."
+#| fig-height: 6.2  # Adjust this value to make the plot taller
+#| fig-width: 7   # Adjust this value to make the plot wider
 
-# ---- From old data set
-# gpa_dat <- dat |>
-#   dplyr::select(academic_performance_gpa, study_hours_per_week, financial_stress)
+# GGally::ggpairs(dplyr::select(dat, where(is.numeric)))
 
-# gpa_dat2 <- dat |>
-#   dplyr::select(academic_performance_gpa, mental_stress_level, diet_quality, cognitive_distortions, substance_use)
-
-# ----
-
-GGally::ggpairs(dplyr::select(dat, where(is.numeric)))
+GGally::ggpairs(
+  dplyr::select(dat, where(is.numeric)),
+  lower = list(
+    continuous = GGally::wrap("points", alpha = 0.03)
+  )
+) +
+  ggplot2::theme(
+    axis.text = ggplot2::element_text(size = 5),
+    strip.text = ggplot2::element_text(size = 4)
+  )
 ```
 
 ```{r}
@@ -126,14 +124,6 @@ dat |>
   geom_point(alpha = 0.1) +
   geom_smooth(method = "loess", se = TRUE) +
   facet_wrap(~ var, scales = "free_x")
-
-  # dat |>
-  # dplyr::select(where(is.numeric)) |>
-  # tidyr::pivot_longer(cols = -c(y), names_to = "var", values_to = "val") |>
-  # ggplot(aes(val, y)) +
-  # geom_point(alpha = 0.5) +
-  # geom_smooth(method = "loess", se = TRUE) +
-  # facet_wrap(~ var, scales = "free_x")
 ```
 
 ## Initial Simple Regressions
@@ -151,23 +141,33 @@ models <- tibble::tibble(
 dplyr::bind_rows(purrr::map2(models$predictor, models$glance, \(v,g) dplyr::mutate(g, predictor=v))) |>
   dplyr::select(predictor, r.squared, adj.r.squared, AIC, BIC, p.value) |>
   knitr::kable(digits = 3, caption = "Simple regression comparisons")
-
-# cand_x <- c("x1","x2","x3")
-# fits <- lapply(cand_x, \(v) lm(reformulate(v, response = "y"), data = dat))
-# models <- tibble::tibble(
-#   predictor = cand_x,
-#   glance = purrr::map(fits, broom::glance),
-#   tidy = purrr::map(fits, broom::tidy)
-# )
-
-# dplyr::bind_rows(purrr::map2(models$predictor, models$glance, \(v,g) dplyr::mutate(g, predictor=v))) |>
-#   dplyr::select(predictor, r.squared, adj.r.squared, AIC, BIC, p.value) |>
-#   knitr::kable(digits = 3, caption = "Simple regression comparisons")
 ```
 
-## Early Findings and Next Steps
+## Early Findings
 
--   What looks promising? Any evidence of nonlinearity or interactions to explore?
+<!-- I based the information primarily on the output given in Table 3, and focused on the variance of the variables and their connection to a student's overall GPA. -->
+
+
+After analyzing the initial summary statistics, pair plots, and the initial simple regressions, we have found the following:
+
+- Study hours per day: Strongest predictor of GPA $(R^{2} ≈ 0.54, p < 0.001)$. There is clear evidence that the number of study hours is related to higher GPA.
+
+- Physical activity hours per day: Moderate predictor of GPA $(R^{2} ≈ 0.12, p < 0.001)$. This explanatory variable suggests a moderate positive effect.
+
+- Social hours per day: Weak predictor of GPA $(R^{2} ≈ 0.007)$, but statistically significant $(p < 0.001)$. This explanatory variable has a small effect in practice.
+
+- Extracurricular hours per day: Very weak predictor of GPA $(R^{2} ≈ 0.001, p ≈ 0.15)$. This variable likely does not have an effect on GPA.
+
+- Sleep hours per day: Non-significant predictor of GPA $(R^{2} ≈ 0.000, p ≈ 0.85).$ This variable likely does not have an effect on GPA.
+
+<!-- (This result is surprising since past research shows sleep usually helps GPA. It might mean the relationship isn’t a straight line (e.g., too little or too much sleep lowers GPA) or that sleep’s impact only shows when combined with other factors like study hours. We’ll need to look closer to confirm or deny whether sleep actually matters in this dataset.) -->
+
+## Next Steps
+
+Our next steps for this data analysis would be to run models with multiple predictors to test interactions and see how they may be correlated. Additionally, check for nonlinear effects for low predictor variables, for example, testing if sleep helps up to a point but then levels off. Lastly, re-examine sleep specifically to see if the current “no effect” result is accurate or hidden by other factors, outliers, etc. 
+
+Overall, the number of study hours was the strongest predictor of GPA, with physical activity showing some benefit as well. Sleep did not appear significant in our simple model, but other research, points to sleep being important. This result was surprising and we plan to explore it further to confirm or challenge our current result. Our next steps will focus on building more complete models that test combinations of predictors, nonlinear patterns, and interactions to get a clearer picture of what drives GPA in college students.
+
 
 ## Reproducibility Snapshot
 
