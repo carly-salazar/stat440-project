@@ -1,0 +1,171 @@
+---
+title: "STAT 440/540 Milestone 3: Multiple Regression & Refinement"
+author: "Group 03: Marilla Cabrigas Blatnick, Kaylie Doyle, Carly Salazar"
+date: "2025-10-30"
+format:
+  pdf:
+    toc: true
+    number-sections: true
+    geometry: margin=1in
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: visual
+---
+
+# Introduction
+
+-   Recap of EDA and initial insights guiding model building.
+
+## Package Setup
+
+```{r}
+#| label: pkg-setup
+if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
+pacman::p_load(tidyverse, broom, car, performance, interactions, splines, mgcv,
+               kableExtra, ggplot2, patchwork)
+set.seed(440540)
+```
+
+## Load Data
+
+```{r}
+#| label: load-data
+
+# Load the data (keep original column names)
+dat <- readr::read_csv("../data/raw/student_lifestyle_dataset.csv")
+
+# Convert Stress_Level from text to numbers
+dat <- dat |>
+  dplyr::mutate(
+    Stress_Level = dplyr::case_when(
+      Stress_Level == "Low" ~ 1,
+      Stress_Level == "Moderate" ~ 2,
+      Stress_Level == "High" ~ 3
+    )
+  )
+```
+
+## Candidate Models
+
+We consider linear, interaction, polynomial, and spline specifications.
+
+```{r}
+#| label: fit-candidates
+
+# MODEL 1: Linear (Main Effects Only)
+m_lin <- lm(GPA ~ Study_Hours_Per_Day + Physical_Activity_Hours_Per_Day + 
+            Social_Hours_Per_Day + Sleep_Hours_Per_Day + Stress_Level, 
+            data = dat)
+
+# MODEL 2: Interaction - Study Hours × Stress Level
+m_int <- lm(GPA ~ Study_Hours_Per_Day * Stress_Level + 
+            Physical_Activity_Hours_Per_Day + Social_Hours_Per_Day + 
+            Sleep_Hours_Per_Day, 
+            data = dat)
+
+# MODEL 3: Polynomial - Quadratic Sleep Effect
+m_poly <- lm(GPA ~ Study_Hours_Per_Day + Physical_Activity_Hours_Per_Day + 
+             Social_Hours_Per_Day + Sleep_Hours_Per_Day + I(Sleep_Hours_Per_Day^2) + 
+             Stress_Level, 
+             data = dat)
+
+# MODEL 4: Spline - Flexible nonlinear effect for study hours
+library(splines)
+m_spline <- lm(GPA ~ bs(Study_Hours_Per_Day, df=4) + Physical_Activity_Hours_Per_Day + 
+               Social_Hours_Per_Day + Sleep_Hours_Per_Day + Stress_Level, 
+               data = dat)
+```
+
+## Model Summaries
+
+```{r}
+#| label: tbl-candidates
+##| tbl-cap: "Model fit summaries."
+purrr::map_df(
+  list(lin=m_lin, int=m_int, poly=m_poly, spline=m_spline),
+  ~broom::glance(.x), .id="model"
+) |>
+  dplyr::select(model, r.squared, adj.r.squared, AIC, BIC, sigma) |>
+  knitr::kable(digits=3)
+```
+
+## Coefficient Interpretation
+
+```{r}
+#| label: tbl-coefs
+##| tbl-cap: "Coefficient estimates for interaction model."
+broom::tidy(m_int, conf.int = TRUE) |>
+  knitr::kable(digits=3)
+```
+
+## Diagnostics
+
+```{r}
+##| fig-cap: "Residual diagnostics for interaction model."
+#| fig-width: 12
+#| fig-height: 10
+
+# Display each diagnostic plot separately
+par(mfrow = c(1, 1))  # Single plot at a time
+plot(m_int, which = 1)  # Residuals vs Fitted
+plot(m_int, which = 2)  # Q-Q plot
+plot(m_int, which = 3)  # Scale-Location
+plot(m_int, which = 5)  # Residuals vs Leverage
+```
+
+```{r}
+#| label: vif
+car::vif(m_int)
+```
+
+## Interaction Plot
+
+```{r}
+#| label: fig-interactions
+##| fig-cap: "Interaction effect visualization."
+#| fig-width: 10
+#| fig-height: 6
+
+# Create prediction data
+pred_data <- expand.grid(
+  Study_Hours_Per_Day = seq(5, 10, by = 0.5),
+  Stress_Level = c(1, 2, 3),
+  Physical_Activity_Hours_Per_Day = mean(dat$Physical_Activity_Hours_Per_Day),
+  Social_Hours_Per_Day = mean(dat$Social_Hours_Per_Day),
+  Sleep_Hours_Per_Day = mean(dat$Sleep_Hours_Per_Day)
+)
+
+# Get predictions
+pred_data$predicted_gpa <- predict(m_int, newdata = pred_data)
+
+# Plot
+library(ggplot2)
+ggplot(pred_data, aes(x = Study_Hours_Per_Day, y = predicted_gpa, 
+                      color = factor(Stress_Level), group = factor(Stress_Level))) +
+  geom_line(size = 1.2) +
+  labs(
+    title = "How Stress Moderates the Effect of Study Hours on GPA",
+    x = "Study Hours per Day",
+    y = "Predicted GPA",
+    color = "Stress Level"
+  ) +
+  scale_color_manual(
+    values = c("1" = "green", "2" = "orange", "3" = "red"),
+    labels = c("1" = "Low", "2" = "Moderate", "3" = "High")
+  ) +
+  theme_minimal()
+```
+
+## Model Selection Rationale
+
+-   Compare metrics and diagnostics; justify the preferred model.
+-   Note limitations and trade-offs (bias–variance, interpretability).
+
+## Reproducibility Snapshot
+
+```{r}
+#| label: session-info
+sessionInfo()
+```
